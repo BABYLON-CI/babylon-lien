@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BABYLON - Position partagee</title>
+<style>
+  body{margin:0;font-family:system-ui,Arial,sans-serif;background:#f5f5f7;color:#1c1c1e;display:flex;align-items:center;justify-content:center;min-height:100vh}
+  .carte{background:#fff;border-radius:18px;padding:28px 22px;max-width:360px;width:88%;text-align:center;box-shadow:0 4px 18px rgba(0,0,0,.08)}
+  h1{margin:0 0 6px;font-size:26px;letter-spacing:2px}
+  p{line-height:1.45;margin:10px 0}
+  a.bouton{display:block;background:#111;color:#fff;text-decoration:none;padding:15px;border-radius:12px;font-weight:600;margin-top:16px}
+  a.second{background:#fff;color:#111;border:2px solid #111}
+  small{color:#6b6b70}
+</style>
+</head>
+<body>
+<div class="carte">
+  <h1>BABYLON</h1>
+  <p id="msg">Ouverture de BABYLON…</p>
+  <a id="ouvrir" class="bouton" href="#">Ouvrir dans BABYLON</a>
+  <a id="installer" class="bouton second" href="#" style="display:none">Installer BABYLON</a>
+  <p><small>Si BABYLON ne s'ouvre pas, touchez le bouton ci-dessus.</small></p>
+</div>
+<script>
+  // Lien pour installer BABYLON (a remplir plus tard). Laisser vide pour le moment.
+  var LIEN_INSTALLATION = '';
+  var PACKAGE_ANDROID = 'com.babylonci.babylon';
+
+  var p = new URLSearchParams(location.search);
+  var lat = parseFloat(p.get('lat'));
+  var lng = parseFloat(p.get('lng'));
+  var ok = isFinite(lat) && isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180;
+
+  var msg = document.getElementById('msg');
+  var bOuvrir = document.getElementById('ouvrir');
+  var bInst = document.getElementById('installer');
+
+  if (LIEN_INSTALLATION) { bInst.href = LIEN_INSTALLATION; bInst.style.display = 'block'; }
+
+  if (!ok) {
+    msg.textContent = "Ce lien n'est pas valide. Demandez à la personne de partager sa position à nouveau.";
+    bOuvrir.style.display = 'none';
+  } else {
+    var requete = 'livrer?lat=' + lat + '&lng=' + lng;
+    var direct = 'babylon://' + requete;
+    var android = 'intent://' + requete + '#Intent;scheme=babylon;package=' + PACKAGE_ANDROID + ';end';
+    var estAndroid = /android/i.test(navigator.userAgent);
+    var lien = estAndroid ? android : direct;
+    bOuvrir.href = lien;
+    msg.textContent = 'Une position a été partagée avec vous. Ouverture de BABYLON…';
+    setTimeout(function () { window.location.href = lien; }, 400);
+    setTimeout(function () {
+      msg.textContent = "Si BABYLON ne s'est pas ouvert, touchez le bouton, ou installez l'application.";
+    }, 2500);
+  }
+</script>
+</body>
+</html>
